@@ -8,6 +8,12 @@ exports.markAttendance = async (req, res) => {
             return res.status(400).json({message: 'Photo is required'});
         }
 
+        const { latitude, longitude} = req.body;
+
+        if(!latitude || !longitude){
+            return res.status(400).json({message: 'Location is required'});
+        }
+
         const imagePath = req.file.path;
 
         const now = new Date();
@@ -15,19 +21,24 @@ exports.markAttendance = async (req, res) => {
 
         await pool.query(
             `INSERT INTO attendance
-            (employee_id, attendance_date, check_in_time, image_path)
-            VALUES (?, ?, ?, ?)`,
-            [userId, attendanceDate, now, imagePath]
+            (employee_id, attendance_date, check_in_time, image_path, latitude, longitude)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [userId, attendanceDate, now, imagePath, latitude, longitude]
         );
 
         res.json({
             message: 'Attendance marked sucessfully',
-            time: now
+            time: now,
+            location: { latitude, longitude}
         });
+
+        console.log("BODY:", req.body);
+        console.log("FILE:", req.file);
+
 
     } catch (err) {
         
-        if(err.code === 'EU_DP_ENTRY'){
+        if(err.code === 'EU_DUP_ENTRY'){
             return res.status(400).json({
                 message: 'Attendance already marked for today'
             });
