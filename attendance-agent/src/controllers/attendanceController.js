@@ -32,8 +32,6 @@ exports.markAttendance = async (req, res) => {
             location: { latitude, longitude}
         });
 
-        console.log("BODY:", req.body);
-        console.log("FILE:", req.file);
 
 
     } catch (err) {
